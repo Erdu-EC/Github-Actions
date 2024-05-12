@@ -39,7 +39,7 @@ jobs:
         env:
           AR: ${{github.action_repository}}
           AB: ${{github.action_ref}}
-        run: echo $GITHUB_ENV
+        run: cat $GITHUB_ENV
 
       - name: Prepare local github actions
         uses: actions/checkout@v4
