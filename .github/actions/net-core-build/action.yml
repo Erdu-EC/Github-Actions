@@ -30,11 +30,14 @@ runs:
     - name: Restore dependencies
       env:
         NUGET_PACKAGES: ${{ env.GITHUB_WORKSPACE }}/.nuget/packages
+      shell: bash
       working-directory: ${{ inputs.checkout_to_path }}
       run: dotnet restore ${{ inputs.project_folder }} --locked-mode
     - name: Build
+      shell: bash
       working-directory: ${{ inputs.checkout_to_path }}
       run: dotnet publish ${{ inputs.project_folder }} --runtime win-x64 --configuration Release --no-restore
     - name: Test
+      shell: bash
       working-directory: ${{ inputs.checkout_to_path }}
       run: dotnet test ${{ inputs.project_folder }} --no-build --verbosity normal
