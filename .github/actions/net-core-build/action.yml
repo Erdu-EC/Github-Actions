@@ -1,18 +1,16 @@
 ﻿name: Checkout and Build .NET project
-description: Checkout and build a .NET project
+description: Checkout and build a .NET project, with caching dependencies.
+
 inputs:
   project_folder:
     description: 'Project folder to build'
     required: true
   project_structure:
-    description: 'Project structure to checkout only the necessary files'
+    description: 'Project structure to checkout only the necessary projects.'
     required: true
   checkout_to_path:
     description: 'Path to checkout the project'
     required: false
-  github_workspace:
-    description: 'Github workspace path'
-    required: true
 
 runs:
   using: 'composite'
