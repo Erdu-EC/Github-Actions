@@ -1,0 +1,128 @@
+﻿name: .Net Build and Send to history branch
+on:
+  workflow_call:
+    secrets:
+      PUBLISH_TOKEN:
+        description: 'A token passed from the caller workflow'
+        required: true
+    inputs:
+      target_repository:
+        description: 'Repository to deploy to (e.g. owner/repo)'
+        required: true
+        type: string
+      target_branch:
+        description: 'Branch to deploy to'
+        required: true
+        type: string
+      project_folder:
+        description: 'Project folder to build'
+        required: true
+        type: string
+      project_structure:
+        description: 'Project structure to checkout'
+        required: true
+        type: string
+
+env:
+  PROJECT_PATH: main/${{ inputs.project_folder }}
+  TARGET_PATH: target
+
+jobs:
+  build:
+    name: Build .NET project
+    runs-on: ubuntu-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: ${{ inputs.project_structure }}
+          path: main
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }} --locked-mode
+      - name: Build
+        run: dotnet publish ${{ env.PROJECT_PATH }} --runtime win-x64 --configuration Release --no-restore
+      - name: Test
+        run: dotnet test ${{ env.PROJECT_PATH }} --no-build --verbosity normal
+      - name: Checkout deploy repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{inputs.target_repository}}
+          token: ${{ secrets.PUBLISH_TOKEN }}
+          ref: ${{ inputs.target_branch }}
+          path: target
+      - name: Move artifacts to deploy repository
+        run: |
+          #Preserve git history.
+          mkdir -p ${{ inputs.project_folder }}
+          cp -r ${{ env.TARGET_PATH }}/.git ${{ inputs.project_folder }}
+          
+          #Remove old files and copy new files. 
+          rm -r -f ${{ env.TARGET_PATH }}
+          mkdir -p ${{ env.TARGET_PATH }}
+          mv ${{ env.PROJECT_PATH }}/bin/Release/net8.0/win-x64/publish/* ${{ env.TARGET_PATH }}
+          
+          #Restore git history.
+          mv ${{ inputs.project_folder }}/.git ${{ env.TARGET_PATH }}
+          
+          #Prepare push changes
+          cd ${{env.TARGET_PATH}}
+          git config user.name "HS Publisher [bot]"
+          git config user.email "hunterstars+github-actions[bot]@hunterstars.noreply.github.com"
+          git add --sparse .
+      - name: Prepare commit message (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd ${{env.TARGET_PATH}}
+          git diff --staged --quiet || git commit -m "manual: Update Artifacts ${{github.run_number}}" -m "
+            Repository: ${{github.repository}}
+            Event: ${{github.event_name}}
+          
+            Actor: [${{github.actor}}](${{github.server_url}}/${{github.actor}})
+            Triggering Actor: [${{github.triggering_actor}}](${{github.server_url}}/${{github.triggering_actor}})
+
+            Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
+            "
+      - name: Prepare commit message (push)
+        if: github.event_name == 'push'
+        run: |
+          cd ${{env.TARGET_PATH}}
+          git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
+            Repository: ${{github.repository}}
+            Event: ${{github.event_name}}
+          
+            Source:
+            - Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
+            - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.sha}}
+            - Message: ${{github.event.head_commit.message}}
+            "
+      - name: Prepare commit message (pull_request)
+        if: github.event_name == 'pull_request'
+        run: |
+          cd ${{env.TARGET_PATH}}
+          git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
+            Event: ${{github.event_name}}
+            Repository: ${{github.repository}}
+          
+            Pull Request #${{github.event.pull_request.number}}
+            Title: ${{github.event.pull_request.title}}
+            Description: ${{github.event.pull_request.body}}
+
+            Source:
+            - Branch: [${{github.head_ref}}](${{github.server_url}}/${{github.repository}}/tree/${{github.event.pull_request.head.ref}})
+            - Request: [#${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}})
+          
+            Merged to: 
+            - Branch: [${{github.base_ref}}](${{github.server_url}}/${{github.repository}}/tree/${{github.base_ref}})
+            - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.event.pull_request.merge_commit_sha}}
+            "
+      - name: Push to deploy repository
+        run: |
+          cd ${{env.TARGET_PATH}}
+          git push
