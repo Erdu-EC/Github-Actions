@@ -39,13 +39,13 @@ jobs:
           ref: ${{ github.action_ref }}
           sparse-checkout: ./.github/workflows/net-core-build.yml
           sparse-checkout-cone-mode: false
+      - name: ls
+        run: ls -a
       - uses: ./.github/workflows/net-core-build.yml
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
           checkout_to_path: main
-      - name: ls
-        run: ls -a
       - name: Checkout deploy repository
         uses: actions/checkout@v4
         with:
