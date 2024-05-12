@@ -35,6 +35,8 @@ jobs:
       - name: Prepare local github actions
         uses: actions/checkout@v4
         with:
+          repository: '${{ github.action_repository }}'
+          ref: ${{ github.action_ref }}
           sparse-checkout: ./.github/workflows/net-core-build.yml
           sparse-checkout-cone-mode: false
       - uses: ./.github/workflows/net-core-build.yml
