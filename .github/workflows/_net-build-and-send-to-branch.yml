@@ -26,6 +26,7 @@ on:
 env:
   PROJECT_PATH: main/${{ inputs.project_folder }}
   TARGET_PATH: target
+  OWN_ACTION_REPOSITORY: ${{ github.action_repository }}
 
 jobs:
   build:
@@ -35,8 +36,8 @@ jobs:
       - name: Prepare local github actions
         uses: actions/checkout@v4
         with:
-          repository: Erdu-EC/Github-Actions
-          ref: separe-actions
+          repository: ${{ env.OWN_ACTION_REPOSITORY }}
+          ref: main
           sparse-checkout: .github/actions/net-core-build/action.yml
           sparse-checkout-cone-mode: false
       - uses: ./.github/actions/net-core-build
