@@ -35,6 +35,12 @@ jobs:
     name: Build .NET project
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare action paths.
+        env:
+          AR: ${{github.action_repository}}
+          AB: ${{github.action_ref}}
+        run: echo "$AR $AB"
+
       - name: Prepare local github actions
         uses: actions/checkout@v4
         with:
