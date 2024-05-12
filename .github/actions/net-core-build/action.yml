@@ -14,13 +14,11 @@ inputs:
     description: 'Github workspace path'
     required: true
 
-env:
-  PROJECT_PATH: ${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}
-  NUGET_PACKAGES: ${{ inputs.github_workspace }}/.nuget/packages
-
 runs:
-  using: 'composite'
+  using: 'composite' 
   steps:
+    - name: Set environment variables
+      run: echo "PROJECT_PATH=${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}" >> $GITHUB_ENV
     - uses: actions/checkout@v4
       with:
         sparse-checkout: ${{ inputs.project_structure }}
@@ -32,6 +30,8 @@ runs:
         cache: true
         cache-dependency-path: '**/packages.lock.json'
     - name: Restore dependencies
+      env:
+        NUGET_PACKAGES: ${{ env.GITHUB_WORKSPACE }}/.nuget/packages
       run: dotnet restore ${{ env.PROJECT_PATH }} --locked-mode
     - name: Build
       run: dotnet publish ${{ env.PROJECT_PATH }} --runtime win-x64 --configuration Release --no-restore
