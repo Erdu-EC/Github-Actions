@@ -1,0 +1,44 @@
+﻿name: Checkout and .Net Core Build
+on:
+  workflow_call:
+    inputs:
+      project_folder:
+        description: 'Project folder to build'
+        required: true
+        type: string
+      project_structure:
+        description: 'Project structure to checkout only the necessary files'
+        required: true
+        type: string
+      checkout_to_path:
+        description: 'Path to checkout the project'
+        required: false
+        type: string
+
+
+env:
+  PROJECT_PATH: ${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}
+
+jobs:
+  build:
+    name: Build .NET project
+    runs-on: ubuntu-latest
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: ${{ inputs.project_structure }}
+          path: main
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }} --locked-mode
+      - name: Build
+        run: dotnet publish ${{ env.PROJECT_PATH }} --runtime win-x64 --configuration Release --no-restore
+      - name: Test
+        run: dotnet test ${{ env.PROJECT_PATH }} --no-build --verbosity normal
