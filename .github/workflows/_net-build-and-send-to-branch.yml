@@ -31,25 +31,12 @@ jobs:
   build:
     name: Build .NET project
     runs-on: ubuntu-latest
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     steps:
-      - uses: actions/checkout@v4
+      - uses: Erdu-EC/Github-Actions/.github/workflows/net-core-build.yml@separate-actions
         with:
-          sparse-checkout: ${{ inputs.project_structure }}
-          path: main
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
-      - name: Restore dependencies
-        run: dotnet restore ${{ env.PROJECT_PATH }} --locked-mode
-      - name: Build
-        run: dotnet publish ${{ env.PROJECT_PATH }} --runtime win-x64 --configuration Release --no-restore
-      - name: Test
-        run: dotnet test ${{ env.PROJECT_PATH }} --no-build --verbosity normal
+          project_folder: ${{ inputs.project_folder }}
+          project_structure: ${{ inputs.project_structure }}
+          checkout_to_path: main
       - name: Checkout deploy repository
         uses: actions/checkout@v4
         with:
