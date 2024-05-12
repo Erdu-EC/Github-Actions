@@ -37,11 +37,11 @@ jobs:
         with:
           repository: '${{ github.action_repository }}'
           ref: ${{ github.action_ref }}
-          sparse-checkout: ./.github/workflows/net-core-build.yml
+          sparse-checkout: .github/actions/net-core-build.yml
           sparse-checkout-cone-mode: false
       - name: ls
         run: ls -a
-      - uses: ./.github/workflows/net-core-build.yml
+      - uses: ./.github/actions/net-core-build.yml
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
