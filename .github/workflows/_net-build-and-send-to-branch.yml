@@ -37,11 +37,11 @@ jobs:
         with:
           repository: Erdu-EC/Github-Actions
           ref: separe-actions
-          sparse-checkout: .github/actions/net-core-build.yml
+          sparse-checkout: .github/actions/net-core-build/action.yml
           sparse-checkout-cone-mode: false
       - name: ls
         run: ls -Ra
-      - uses: .github/actions/net-core-build.yml
+      - uses: ./.github/actions/net-core-build
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
