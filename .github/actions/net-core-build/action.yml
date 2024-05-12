@@ -15,10 +15,8 @@ inputs:
     required: true
 
 runs:
-  using: 'composite' 
+  using: 'composite'
   steps:
-    - name: Set environment variables
-      run: echo "PROJECT_PATH=${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}" >> $GITHUB_ENV
     - uses: actions/checkout@v4
       with:
         sparse-checkout: ${{ inputs.project_structure }}
@@ -32,8 +30,11 @@ runs:
     - name: Restore dependencies
       env:
         NUGET_PACKAGES: ${{ env.GITHUB_WORKSPACE }}/.nuget/packages
-      run: dotnet restore ${{ env.PROJECT_PATH }} --locked-mode
+      working-directory: ${{ inputs.checkout_to_path }}
+      run: dotnet restore ${{ inputs.project_folder }} --locked-mode
     - name: Build
-      run: dotnet publish ${{ env.PROJECT_PATH }} --runtime win-x64 --configuration Release --no-restore
+      working-directory: ${{ inputs.checkout_to_path }}
+      run: dotnet publish ${{ inputs.project_folder }} --runtime win-x64 --configuration Release --no-restore
     - name: Test
-      run: dotnet test ${{ env.PROJECT_PATH }} --no-build --verbosity normal
+      working-directory: ${{ inputs.checkout_to_path }}
+      run: dotnet test ${{ inputs.project_folder }} --no-build --verbosity normal
