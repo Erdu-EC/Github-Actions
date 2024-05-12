@@ -21,6 +21,9 @@ runs:
       with:
         sparse-checkout: ${{ inputs.project_structure }}
         path: ${{ inputs.checkout_to_path }}
+    - name: Set Environment Variables
+      shell: bash
+      run: echo "NUGET_PACKAGES=$GITHUB_WORKSPACE/.nuget/packages" >> $GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -30,18 +33,12 @@ runs:
     - name: Restore dependencies
       working-directory: ${{ inputs.checkout_to_path }}
       shell: bash
-      env:
-        NUGET_PACKAGES: $GITHUB_WORKSPACE/.nuget/packages
       run: dotnet restore ${{ inputs.project_folder }} --locked-mode
     - name: Build
       working-directory: ${{ inputs.checkout_to_path }}
       shell: bash
-      env:
-        NUGET_PACKAGES: $GITHUB_WORKSPACE/.nuget/packages
       run: dotnet publish ${{ inputs.project_folder }} --runtime win-x64 --configuration Release --no-restore
     - name: Test
       working-directory: ${{ inputs.checkout_to_path }}
       shell: bash
-      env:
-        NUGET_PACKAGES: $GITHUB_WORKSPACE/.nuget/packages
       run: dotnet test ${{ inputs.project_folder }} --no-build --verbosity normal
