@@ -15,7 +15,6 @@ on:
         required: false
         type: string
 
-
 env:
   PROJECT_PATH: ${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}
 
