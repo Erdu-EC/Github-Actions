@@ -14,11 +14,12 @@ inputs:
     description: 'Github workspace path'
     required: true
 
+env:
+  PROJECT_PATH: ${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}
+  NUGET_PACKAGES: ${{ inputs.github_workspace }}/.nuget/packages
+
 runs:
   using: 'composite'
-  env:
-    PROJECT_PATH: ${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}
-    NUGET_PACKAGES: ${{ inputs.github_workspace }}/.nuget/packages
   steps:
     - uses: actions/checkout@v4
       with:
