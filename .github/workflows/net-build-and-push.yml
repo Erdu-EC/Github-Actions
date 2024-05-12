@@ -22,6 +22,10 @@ on:
         description: 'Project structure to checkout'
         required: true
         type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        type: string
       push:
         description: 'Push changes to target repository'
         required: false
@@ -39,6 +43,7 @@ jobs:
   build:
     name: Build .NET project
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
       - name: Prepare local github actions
         uses: actions/checkout@v4
