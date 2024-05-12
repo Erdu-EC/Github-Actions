@@ -32,7 +32,7 @@ jobs:
     name: Build .NET project
     runs-on: ubuntu-latest
     steps:
-      - uses: Erdu-EC/Github-Actions/.github/workflows/net-core-build.yml
+      - uses: ./.github/workflows/net-core-build.yml
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
