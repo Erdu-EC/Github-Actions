@@ -39,10 +39,7 @@ jobs:
         env:
           AR: ${{github.action_repository}}
           AB: ${{github.action_ref}}
-        run:
-          echo "AR=${{github.action_repository}}/.nuget/packages" >> $GITHUB_ENV
-          echo "AR=${{github.action_ref}}" >> $GITHUB_ENV
-          echo "$AR $AB"
+        run: echo $GITHUB_ENV
 
       - name: Prepare local github actions
         uses: actions/checkout@v4
