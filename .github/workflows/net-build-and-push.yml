@@ -1,4 +1,4 @@
-﻿name: .Net Build and Send to history branch
+﻿name: .Net Build and push to history branch (Not the same)
 on:
   workflow_call:
     secrets:
@@ -26,6 +26,9 @@ on:
 env:
   PROJECT_PATH: main/${{ inputs.project_folder }}
   TARGET_PATH: target
+  
+  OWN_ACTION_REPOSITORY: Erdu-EC/Github-Actions
+  OWN_ACTION_BRANCH: main
 
 jobs:
   build:
@@ -35,11 +38,12 @@ jobs:
       - name: Prepare local github actions
         uses: actions/checkout@v4
         with:
-          repository: Erdu-EC/Github-Actions
-          ref: separe-actions
+          repository: ${{ env.OWN_ACTION_REPOSITORY }}
+          ref: ${{ env.OWN_ACTION_BRANCH }}
           sparse-checkout: .github/actions/net-core-build/action.yml
           sparse-checkout-cone-mode: false
-      - uses: ./.github/actions/net-core-build
+      - name: Checkout and build with cache
+        uses: ./.github/actions/net-core-build
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}

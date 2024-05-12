@@ -72,5 +72,12 @@ jobs:
         checkout_to_path: 'ruta/para/checkout'
 ```
 
+## Nota
+Los proyectos .NET Core deben tener la siguiente configuración en su archivo `.csproj` dentro de la etiqueta `PropertyGroup` para que la acción funcione correctamente:
+
+```xml
+<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+```
+
 ## Licencia
 El contenido de este repositorio está protegido bajo la licencia [MIT](https://opensource.org/licenses/MIT)
