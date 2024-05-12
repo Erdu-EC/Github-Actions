@@ -20,7 +20,7 @@ runs:
     - uses: actions/checkout@v4
       with:
         sparse-checkout: ${{ inputs.project_structure }}
-        path: main
+        path: ${{ inputs.checkout_to_path }}
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
