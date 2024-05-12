@@ -41,7 +41,7 @@ jobs:
           sparse-checkout-cone-mode: false
       - name: ls
         run: ls -Ra
-      - uses: ./.github/actions/net-core-build.yml
+      - uses: .github/actions/net-core-build.yml
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
