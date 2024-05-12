@@ -35,7 +35,7 @@ jobs:
       - name: Prepare local github actions
         uses: actions/checkout@v4
         with:
-          repository: ${{ vars.ACTION_REPOSITORY }}
+          repository: Erdu-EC/Github-Actions
           ref: separate-actions
           sparse-checkout: .github/actions/net-core-build.yml
           sparse-checkout-cone-mode: false
