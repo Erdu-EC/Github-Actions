@@ -43,7 +43,7 @@ jobs:
   build:
     name: Build .NET project
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.push && inputs.environment || '' }}
     steps:
       - name: Prepare local github actions
         uses: actions/checkout@v4
