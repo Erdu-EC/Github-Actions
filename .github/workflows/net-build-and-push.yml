@@ -22,6 +22,11 @@ on:
         description: 'Project structure to checkout'
         required: true
         type: string
+      push:
+        description: 'Push changes to target repository'
+        required: false
+        type: boolean
+        default: true
 
 env:
   PROJECT_PATH: main/${{ inputs.project_folder }}
@@ -49,6 +54,7 @@ jobs:
           project_structure: ${{ inputs.project_structure }}
           checkout_to_path: main
       - name: Checkout deploy repository
+        if : inputs.push
         uses: actions/checkout@v4
         with:
           repository: ${{inputs.target_repository}}
@@ -56,6 +62,7 @@ jobs:
           ref: ${{ inputs.target_branch }}
           path: target
       - name: Move binaries to deploy repository
+        if : inputs.push
         run: |
           #Preserve git history.
           mkdir -p ${{ inputs.project_folder }}
@@ -75,7 +82,7 @@ jobs:
           git config user.email "hunterstars+github-actions[bot]@hunterstars.noreply.github.com"
           git add --sparse .
       - name: Prepare commit message (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
+        if: inputs.push && github.event_name == 'workflow_dispatch'
         run: |
           cd ${{env.TARGET_PATH}}
           git diff --staged --quiet || git commit -m "manual: Update Artifacts ${{github.run_number}}" -m "
@@ -88,7 +95,7 @@ jobs:
             Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
             "
       - name: Prepare commit message (push)
-        if: github.event_name == 'push'
+        if: inputs.push && github.event_name == 'push'
         run: |
           cd ${{env.TARGET_PATH}}
           git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
@@ -101,7 +108,7 @@ jobs:
             - Message: ${{github.event.head_commit.message}}
             "
       - name: Prepare commit message (pull_request)
-        if: github.event_name == 'pull_request'
+        if: inputs.push && github.event_name == 'pull_request'
         run: |
           cd ${{env.TARGET_PATH}}
           git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
@@ -121,6 +128,7 @@ jobs:
             - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.event.pull_request.merge_commit_sha}}
             "
       - name: Push to deploy repository
+        if: inputs.push
         run: |
           cd ${{env.TARGET_PATH}}
           git push

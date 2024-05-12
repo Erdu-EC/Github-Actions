@@ -2,6 +2,10 @@
 
 Esta acción de GitHub se encarga de realizar la compilación de un proyecto .NET y empujar los cambios a una rama de historial.
 
+## Secretos
+### `PUBLISH_TOKEN`
+**Requerido** | Token de GitHub con permisos de escritura en el repositorio de destino.
+
 ## Entradas
 ### `target_repository`
 
@@ -18,6 +22,9 @@ Esta acción de GitHub se encarga de realizar la compilación de un proyecto .NE
 ### `project_structure`
 
 **Requerido** | Estructura del proyecto para realizar el checkout solo de los proyectos necesarios.
+
+### `push`
+**Opcional** | Valor por defecto: `true` | Indica si se deben empujar los cambios a la rama de historial.
 
 ## Uso
 
