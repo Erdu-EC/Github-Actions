@@ -55,7 +55,7 @@ jobs:
           token: ${{ secrets.PUBLISH_TOKEN }}
           ref: ${{ inputs.target_branch }}
           path: target
-      - name: Move artifacts to deploy repository
+      - name: Move binaries to deploy repository
         run: |
           #Preserve git history.
           mkdir -p ${{ inputs.project_folder }}
