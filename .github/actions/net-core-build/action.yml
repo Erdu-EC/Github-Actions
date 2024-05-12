@@ -24,6 +24,9 @@ runs:
     - name: Set Environment Variables
       shell: bash
       run: echo "NUGET_PACKAGES=$GITHUB_WORKSPACE/.nuget/packages" >> $GITHUB_ENV
+    - name: Show Environment Variables
+      shell: bash
+      run: echo $NUGET_PACKAGES
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
