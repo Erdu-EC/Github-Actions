@@ -1,0 +1,42 @@
+﻿name: Checkout and Build .NET project
+description: Checkout and build a .NET project, with caching dependencies.
+
+inputs:
+  project_folder:
+    description: 'Project folder to build'
+    required: true
+  project_structure:
+    description: 'Project structure to checkout only the necessary projects.'
+    required: true
+  checkout_to_path:
+    description: 'Path to checkout the project'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: ${{ inputs.project_structure }}
+        path: ${{ inputs.checkout_to_path }}
+    - name: Set Environment Variables
+      shell: bash
+      run: echo "NUGET_PACKAGES=$GITHUB_WORKSPACE/.nuget/packages" >> $GITHUB_ENV
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        cache: true
+        cache-dependency-path: '**/packages.lock.json'
+    - name: Restore dependencies
+      working-directory: ${{ inputs.checkout_to_path }}
+      shell: bash
+      run: dotnet restore ${{ inputs.project_folder }} --locked-mode
+    - name: Build
+      working-directory: ${{ inputs.checkout_to_path }}
+      shell: bash
+      run: dotnet publish ${{ inputs.project_folder }} --runtime win-x64 --configuration Release --no-restore
+    - name: Test
+      working-directory: ${{ inputs.checkout_to_path }}
+      shell: bash
+      run: dotnet test ${{ inputs.project_folder }} --no-build --verbosity normal
