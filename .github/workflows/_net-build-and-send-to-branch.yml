@@ -46,6 +46,7 @@ jobs:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
           checkout_to_path: main
+          github_workspace: ${{ github.workspace }}
       - name: Checkout deploy repository
         uses: actions/checkout@v4
         with:

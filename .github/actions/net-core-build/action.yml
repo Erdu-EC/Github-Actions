@@ -10,12 +10,15 @@ inputs:
   checkout_to_path:
     description: 'Path to checkout the project'
     required: false
+  github_workspace:
+    description: 'Github workspace path'
+    required: true
 
 runs:
-  using: "composite"
+  using: 'composite'
   env:
     PROJECT_PATH: ${{inputs.checkout_to_path != '' && format('{0}/{1}', inputs.checkout_to_path, inputs.project_folder) || inputs.project_folder}}
-    NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    NUGET_PACKAGES: ${{ inputs.github_workspace }}/.nuget/packages
   steps:
     - uses: actions/checkout@v4
       with:
