@@ -32,6 +32,11 @@ jobs:
     name: Build .NET project
     runs-on: ubuntu-latest
     steps:
+      - name: Prepare local github actions
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: ./.github/workflows/net-core-build.yml
+          sparse-checkout-cone-mode: false
       - uses: ./.github/workflows/net-core-build.yml
         with:
           project_folder: ${{ inputs.project_folder }}
