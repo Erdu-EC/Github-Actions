@@ -1,4 +1,5 @@
 ﻿name: Checkout and Build .NET project
+description: Checkout and build a .NET project
 inputs:
   project_folder:
     description: 'Project folder to build'
