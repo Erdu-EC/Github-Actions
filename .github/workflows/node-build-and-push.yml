@@ -35,7 +35,7 @@ on:
 env:
   ORIGIN_PATH: main/${{ inputs.app_folder }}
   ACTION_REPOSITORY: Erdu-EC/Github-Actions
-  ACTION_BRANCH: test
+  ACTION_BRANCH: v1.3
 
 jobs:
   build:
