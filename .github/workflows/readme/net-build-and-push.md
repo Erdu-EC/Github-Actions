@@ -2,6 +2,8 @@
 
 Esta acción de GitHub se encarga de realizar la compilación de un proyecto .NET y empujar los cambios a una rama de historial.
 
+Ver: [action.yml](../net-build-and-push.yml)
+
 ## Secretos
 ### `PUBLISH_TOKEN`
 **Requerido** | Token de GitHub con permisos de escritura en el repositorio de destino.

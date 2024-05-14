@@ -1,4 +1,4 @@
-﻿name: .Net Build and push to history branch (Not the same)
+﻿name: .Net Build and push to history branch (Not needed be in the same repository)
 on:
   workflow_call:
     secrets:
@@ -61,7 +61,7 @@ jobs:
           project_structure: ${{ inputs.project_structure }}
           checkout_to_path: main
       - name: Checkout deploy repository
-        if : inputs.push
+        if: inputs.push
         uses: actions/checkout@v4
         with:
           repository: ${{inputs.target_repository}}
@@ -69,7 +69,7 @@ jobs:
           ref: ${{ inputs.target_branch }}
           path: target
       - name: Move binaries to deploy repository
-        if : inputs.push
+        if: inputs.push
         run: |
           #Preserve git history.
           mkdir -p ${{ inputs.project_folder }}
@@ -89,7 +89,7 @@ jobs:
           git config user.email "hunterstars+github-actions[bot]@hunterstars.noreply.github.com"
           git add --sparse .
       - name: Push changes
-        if : inputs.push
+        if: inputs.push
         uses: ./.github/actions/commit-message
         with:
           cd: ${{ env.TARGET_PATH }}

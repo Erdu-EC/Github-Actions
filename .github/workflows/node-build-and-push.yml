@@ -1,0 +1,30 @@
+﻿name: Node.js Build and Push to history branch (Not needed be in the same repository)
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build App with Node.js
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get app files from repository
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: frontend/client_app
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.2
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd frontend/client_app
+          npm ci
+
+      - name: Build App
+        run: |
+          cd frontend/client_app
+          npm run build

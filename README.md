@@ -20,7 +20,7 @@ Puedes encontrar más detalles en [commit-message](.github/actions/commit-messag
 
 Este flujo de trabajo se encarga de realizar la compilación de un proyecto .NET y empujar los cambios a una rama de historial.
 
-Puedes encontrar más detalles en [net-build-and-push](.github/workflows/README.md).
+Puedes encontrar más detalles en [net-build-and-push](.github/workflows/readme/net-build-and-push.md).
 
 ## Uso
 
