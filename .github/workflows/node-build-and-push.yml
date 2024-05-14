@@ -2,7 +2,7 @@
 on:
   workflow_call:
     secrets:
-      PUBLISH_TOKEN:
+      PUSH_TOKEN:
         description: 'A token passed from the caller workflow, to push changes to target repository'
         required: true
     inputs:
