@@ -1,7 +1,15 @@
 ﻿name: Node.js Build and Push to history branch (Not needed be in the same repository)
 on:
   workflow_call:
+    secrets:
+      PUBLISH_TOKEN:
+        description: 'A token passed from the caller workflow, to push changes to target repository'
+        required: true
     inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        type: string
       app_folder:
         description: 'App folder to build'
         required: true
@@ -10,16 +18,44 @@ on:
         description: 'App structure to checkout, optional, default is app_folder'
         required: false
         type: string
+      target_repository:
+        description: 'Repository to deploy to (e.g. owner/repo)'
+        required: true
+        type: string
+      target_branch:
+        description: 'Branch to deploy to'
+        required: true
+        type: string
+      push:
+        description: 'Push changes to target repository'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  ORIGIN_PATH: main/${{ inputs.app_folder }}
+  ACTION_REPOSITORY: Erdu-EC/Github-Actions
+  ACTION_BRANCH: test
 
 jobs:
   build:
     name: Build App with Node.js
     runs-on: ubuntu-latest
+    environment: ${{ inputs.push && inputs.environment || '' }}
     steps:
+      - name: Prepare local github actions
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.ACTION_REPOSITORY }}
+          ref: ${{ env.ACTION_BRANCH }}
+          sparse-checkout: .github/actions/commit-message/action.yml
+          sparse-checkout-cone-mode: false
+          
       - name: Get app files from repository
         uses: actions/checkout@v4
         with:
           sparse-checkout: ${{ inputs.app_structure || inputs.app_folder }}
+          path: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,9 +65,25 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
 
       - name: Install dependencies
-        working-directory: ${{ inputs.app_folder }}
+        working-directory: ${{env.ORIGIN_PATH}}
         run: npm ci
 
       - name: Build App
-        working-directory: ${{ inputs.app_folder }}
+        working-directory: ${{env.ORIGIN_PATH}}
         run: npm run build
+        
+      - name: Checkout deploy repository
+        if: inputs.push
+        uses: actions/checkout@v4
+        with:
+          repository: ${{inputs.target_repository}}
+          token: ${{ secrets.PUBLISH_TOKEN }}
+          ref: ${{ inputs.target_branch }}
+          path: target
+
+      - name: Push changes
+        if: inputs.push
+        uses: ./.github/actions/commit-message
+        with:
+          cd: target
+          push: ${{ inputs.push }}
