@@ -50,7 +50,7 @@ jobs:
           ref: ${{ env.ACTION_BRANCH }}
           sparse-checkout: .github/actions/commit-message/action.yml
           sparse-checkout-cone-mode: false
-          
+
       - name: Get app files from repository
         uses: actions/checkout@v4
         with:
@@ -71,7 +71,7 @@ jobs:
       - name: Build App
         working-directory: ${{env.ORIGIN_PATH}}
         run: npm run build
-        
+
       - name: Checkout deploy repository
         if: inputs.push
         uses: actions/checkout@v4
@@ -80,16 +80,15 @@ jobs:
           token: ${{ secrets.PUSH_TOKEN }}
           ref: ${{ inputs.target_branch }}
           path: target
-          
+
       - name: Copy compiled files
         if: inputs.push
         run: |
           #Copy compiled files.
-          mv target/.git target-git-${{github.run_id}}
-          rm -r -f target
+          mv target target-${{github.run_id}}
           mkdir -p target
           mv ${{env.ORIGIN_PATH}}/.output/* target
-          mv target-git-${{github.run_id}}/.git target/
+          mv target-${{github.run_id}}/.git target
           
           #Prepare push changes
           cd target
