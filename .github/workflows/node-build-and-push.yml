@@ -82,11 +82,14 @@ jobs:
           path: target
           
       - name: Copy compiled files
+        if: inputs.push
         run: |
           #Copy compiled files.
+          mv target/.git target-git-${{github.run_id}}
           rm -r -f target
           mkdir -p target
           mv ${{env.ORIGIN_PATH}}/.output/* target
+          mv target-git-${{github.run_id}}/.git target/
           
           #Prepare push changes
           cd target
