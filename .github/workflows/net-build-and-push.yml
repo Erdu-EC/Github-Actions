@@ -50,7 +50,9 @@ jobs:
         with:
           repository: ${{ env.OWN_ACTION_REPOSITORY }}
           ref: ${{ env.OWN_ACTION_BRANCH }}
-          sparse-checkout: .github/actions/net-core-build/action.yml
+          sparse-checkout: |
+            .github/actions/net-core-build/action.yml
+            .github/actions/commit-message/action.yml
           sparse-checkout-cone-mode: false
       - name: Checkout and build with cache
         uses: ./.github/actions/net-core-build
@@ -86,54 +88,9 @@ jobs:
           git config user.name "HS Publisher [bot]"
           git config user.email "hunterstars+github-actions[bot]@hunterstars.noreply.github.com"
           git add --sparse .
-      - name: Prepare commit message (workflow_dispatch)
-        if: inputs.push && github.event_name == 'workflow_dispatch'
-        run: |
-          cd ${{env.TARGET_PATH}}
-          git diff --staged --quiet || git commit -m "manual: Update Artifacts ${{github.run_number}}" -m "
-            Repository: ${{github.repository}}
-            Event: ${{github.event_name}}
-          
-            Actor: [${{github.actor}}](${{github.server_url}}/${{github.actor}})
-            Triggering Actor: [${{github.triggering_actor}}](${{github.server_url}}/${{github.triggering_actor}})
-
-            Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
-            "
-      - name: Prepare commit message (push)
-        if: inputs.push && github.event_name == 'push'
-        run: |
-          cd ${{env.TARGET_PATH}}
-          git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
-            Repository: ${{github.repository}}
-            Event: ${{github.event_name}}
-          
-            Source:
-            - Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
-            - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.sha}}
-            - Message: ${{github.event.head_commit.message}}
-            "
-      - name: Prepare commit message (pull_request)
-        if: inputs.push && github.event_name == 'pull_request'
-        run: |
-          cd ${{env.TARGET_PATH}}
-          git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
-            Event: ${{github.event_name}}
-            Repository: ${{github.repository}}
-          
-            Pull Request #${{github.event.pull_request.number}}
-            Title: ${{github.event.pull_request.title}}
-            Description: ${{github.event.pull_request.body}}
-
-            Source:
-            - Branch: [${{github.head_ref}}](${{github.server_url}}/${{github.repository}}/tree/${{github.event.pull_request.head.ref}})
-            - Request: [#${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}})
-          
-            Merged to: 
-            - Branch: [${{github.base_ref}}](${{github.server_url}}/${{github.repository}}/tree/${{github.base_ref}})
-            - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.event.pull_request.merge_commit_sha}}
-            "
-      - name: Push to deploy repository
-        if: inputs.push
-        run: |
-          cd ${{env.TARGET_PATH}}
-          git push
+      - name: Push changes
+        if : inputs.push
+        uses: ./.github/actions/commit-message
+        with:
+          cd: ${{ env.TARGET_PATH }}
+          push: ${{ inputs.push }}

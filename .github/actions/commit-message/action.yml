@@ -1,0 +1,72 @@
+﻿name: Commit staged changes
+author: Erdu-EC
+description: |
+  Commit staged changes with a message with information about the branch and the commit,
+  or a custom message provided by the user. Optionally pushing the changes to the repository.
+
+inputs:
+  cd:
+    description: 'Change directory to the repository location'
+    required: false
+    default: '.'
+  message:
+    description: 'Custom message to commit'
+    required: false
+  push:
+    description: 'Push changes to the repository'
+    required: false
+
+runs:
+  using: 'composite'
+  working-directory: ${{ inputs.cd }}
+  steps:
+    - name: Commit changes
+      if: inputs.message
+      run: git diff --staged --quiet || git commit -m "${{ inputs.message }}"
+
+    - name: Prepare commit message (workflow_dispatch)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        git diff --staged --quiet || git commit -m "manual: Update Artifacts ${{github.run_number}}" -m "
+          Repository: ${{github.repository}}
+          Event: ${{github.event_name}}
+
+          Actor: [${{github.actor}}](${{github.server_url}}/${{github.actor}})
+          Triggering Actor: [${{github.triggering_actor}}](${{github.server_url}}/${{github.triggering_actor}})
+
+          Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
+          "
+    - name: Prepare commit message (push)
+      if: github.event_name == 'push'
+      run: |
+        git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
+          Repository: ${{github.repository}}
+          Event: ${{github.event_name}}
+
+          Source:
+          - Branch: [${{github.ref_name}}](${{github.server_url}}/${{github.repository}}/tree/${{github.ref_name}})
+          - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.sha}}
+          - Message: ${{github.event.head_commit.message}}
+          "
+    - name: Prepare commit message (pull_request)
+      if: github.event_name == 'pull_request'
+      run: |
+        git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
+          Event: ${{github.event_name}}
+          Repository: ${{github.repository}}
+
+          Pull Request #${{github.event.pull_request.number}}
+          Title: ${{github.event.pull_request.title}}
+          Description: ${{github.event.pull_request.body}}
+
+          Source:
+          - Branch: [${{github.head_ref}}](${{github.server_url}}/${{github.repository}}/tree/${{github.event.pull_request.head.ref}})
+          - Request: [#${{github.event.pull_request.number}}](${{github.event.pull_request.html_url}})
+
+          Merged to: 
+          - Branch: [${{github.base_ref}}](${{github.server_url}}/${{github.repository}}/tree/${{github.base_ref}})
+          - Commit: ${{github.server_url}}/${{github.repository}}/commit/${{github.event.pull_request.merge_commit_sha}}
+          "
+    - name: Push to deploy repository
+      if: inputs.push
+      run: git push
