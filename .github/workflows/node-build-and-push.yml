@@ -84,8 +84,9 @@ jobs:
       - name: Copy compiled files
         run: |
           #Copy compiled files.
-          rm -r -f target/.output
-          mv ${{env.ORIGIN_PATH}}/.output target
+          rm -r -f target
+          mkdir -p target
+          mv ${{env.ORIGIN_PATH}}/.output/* target
           
           #Prepare push changes
           cd target
