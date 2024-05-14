@@ -1,6 +1,15 @@
 ﻿name: Node.js Build and Push to history branch (Not needed be in the same repository)
 on:
   workflow_call:
+    inputs:
+      app_folder:
+        description: 'App folder to build'
+        required: true
+        type: string
+      app_structure:
+        description: 'App structure to checkout, optional, default is app_folder'
+        required: false
+        type: string
 
 jobs:
   build:
@@ -10,7 +19,7 @@ jobs:
       - name: Get app files from repository
         uses: actions/checkout@v4
         with:
-          sparse-checkout: frontend/client_app
+          sparse-checkout: ${{ inputs.app_structure || inputs.app_folder }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -20,11 +29,9 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
 
       - name: Install dependencies
-        run: |
-          cd frontend/client_app
-          npm ci
+        working-directory: ${{ inputs.app_folder }}
+        run: npm ci
 
       - name: Build App
-        run: |
-          cd frontend/client_app
-          npm run build
+        working-directory: ${{ inputs.app_folder }}
+        run: npm run build
