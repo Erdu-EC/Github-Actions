@@ -37,7 +37,7 @@ env:
   TARGET_PATH: target
   
   OWN_ACTION_REPOSITORY: Erdu-EC/Github-Actions
-  OWN_ACTION_BRANCH: main
+  OWN_ACTION_BRANCH: test
 
 jobs:
   build:
