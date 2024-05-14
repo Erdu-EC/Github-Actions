@@ -77,7 +77,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{inputs.target_repository}}
-          token: ${{ secrets.PUBLISH_TOKEN }}
+          token: ${{ secrets.PUSH_TOKEN }}
           ref: ${{ inputs.target_branch }}
           path: target
           
