@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Erdu-EC/Github-Actions
-          ref: main
+          ref: v1.3 # Or any version (check the releases)
           sparse-checkout: .github/actions/net-core-build/action.yml
           sparse-checkout-cone-mode: false
           
