@@ -80,7 +80,18 @@ jobs:
           token: ${{ secrets.PUBLISH_TOKEN }}
           ref: ${{ inputs.target_branch }}
           path: target
-
+          
+      - name: Copy compiled files
+        run: |
+          #Copy compiled files.
+          rm -r -f ${{env.ORIGIN_PATH}}/.output
+          mv ${{env.ORIGIN_PATH}}/.output target
+          
+          #Prepare push changes
+          cd target
+          git config user.name "HS Publisher [bot]"
+          git config user.email "hunterstars+github-actions[bot]@hunterstars.noreply.github.com"
+          git add --sparse .
       - name: Push changes
         if: inputs.push
         uses: ./.github/actions/commit-message
