@@ -85,6 +85,7 @@ jobs:
         run: |
           #Copy compiled files.
           rm -r -f ${{env.ORIGIN_PATH}}/.output
+          mkdir -p ${{env.ORIGIN_PATH}}
           mv ${{env.ORIGIN_PATH}}/.output target
           
           #Prepare push changes
