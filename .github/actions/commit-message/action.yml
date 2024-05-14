@@ -18,14 +18,18 @@ inputs:
 
 runs:
   using: 'composite'
-  working-directory: ${{ inputs.cd }}
+  
   steps:
     - name: Commit changes
       if: inputs.message
+      shell: bash
+      working-directory: ${{ inputs.cd }}
       run: git diff --staged --quiet || git commit -m "${{ inputs.message }}"
 
     - name: Prepare commit message (workflow_dispatch)
       if: github.event_name == 'workflow_dispatch'
+      shell: bash
+      working-directory: ${{ inputs.cd }}
       run: |
         git diff --staged --quiet || git commit -m "manual: Update Artifacts ${{github.run_number}}" -m "
           Repository: ${{github.repository}}
@@ -38,6 +42,8 @@ runs:
           "
     - name: Prepare commit message (push)
       if: github.event_name == 'push'
+      shell: bash
+      working-directory: ${{ inputs.cd }}
       run: |
         git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
           Repository: ${{github.repository}}
@@ -50,6 +56,8 @@ runs:
           "
     - name: Prepare commit message (pull_request)
       if: github.event_name == 'pull_request'
+      shell: bash
+      working-directory: ${{ inputs.cd }}
       run: |
         git diff --staged --quiet || git commit -m "ci/cd: Update Artifacts ${{github.run_number}}" -m "
           Event: ${{github.event_name}}
@@ -69,4 +77,6 @@ runs:
           "
     - name: Push to deploy repository
       if: inputs.push
+      shell: bash
+      working-directory: ${{ inputs.cd }}
       run: git push
