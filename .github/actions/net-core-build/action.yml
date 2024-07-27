@@ -8,8 +8,8 @@ inputs:
   project_structure:
     description: 'Project structure to checkout only the necessary projects.'
     required: true
-  checkout_to_path:
-    description: 'Path to checkout the project'
+  publish_to_path:
+    description: 'Path to publish the project to'
     required: false
 
 runs:
