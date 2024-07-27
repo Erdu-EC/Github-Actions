@@ -59,7 +59,7 @@ jobs:
         with:
           project_folder: ${{ inputs.project_folder }}
           project_structure: ${{ inputs.project_structure }}
-          checkout_to_path: main
+          publish_to_path: main
       - name: Checkout deploy repository
         if: inputs.push
         uses: actions/checkout@v4
