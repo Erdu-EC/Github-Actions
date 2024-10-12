@@ -1,0 +1,43 @@
+name: Checkout and Build a Node Application
+author: Erdu-EC
+description: Checkout and build a Node Application, with caching dependencies.
+
+inputs:
+  app_folder:
+    description: 'App folder to compile'
+    required: true
+  app_structure:
+    description: 'App structure to checkout only the necessary folders.'
+    required: true
+  publish_to_path:
+    description: 'Path to publish the app to'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: ${{ inputs.app_structure }}
+        path: ${{ inputs.publish_to_path }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.18.2
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ${{ inputs.publish_to_path }}
+      run: |
+        cd ${{inputs.app_folder}}
+        npm ci
+      shell: bash
+
+    - name: Build App
+      working-directory: ${{ inputs.publish_to_path }}
+      run: |
+        cd ${{inputs.app_folder}}
+        npm run build
+      shell: bash
